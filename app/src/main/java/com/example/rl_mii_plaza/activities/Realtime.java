@@ -13,6 +13,7 @@ import com.example.rl_mii_plaza.R;
 public class Realtime extends AppCompatActivity {
 
     ImageView imageView;
+    //peee
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
