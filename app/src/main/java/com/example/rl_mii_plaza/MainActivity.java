@@ -29,9 +29,9 @@ import java.io.InputStream;
 import androidx.appcompat.app.AppCompatActivity;
 public class MainActivity extends AppCompatActivity {
 
-    private final String apiEndpoint = System.getenv("FACE_ENDPOINT");
+    private final String apiEndpoint = "https://westcentralus.api.cognitive.microsoft.com/face/v1.0";
     // Add your Face subscription key to your environment variables.
-    private final String subscriptionKey = System.getenv("FACE_SUBSCRIPTION_KEY");
+    private final String subscriptionKey = "007d7d59118c46598573544e80c7898f";
 
     private final FaceServiceClient faceServiceClient =
             new FaceServiceRestClient(apiEndpoint, subscriptionKey);
