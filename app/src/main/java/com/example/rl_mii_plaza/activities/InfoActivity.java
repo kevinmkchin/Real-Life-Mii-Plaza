@@ -15,6 +15,7 @@ import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.rl_mii_plaza.R;
@@ -25,6 +26,7 @@ public class InfoActivity extends AppCompatActivity {
     private static final int IMAGE_CAPTURE_CODE = 1001;
     Button captureBtn;
     ImageView imgView;
+    TextView test;
 
     Uri image_uri;
 
@@ -36,6 +38,7 @@ public class InfoActivity extends AppCompatActivity {
         // initialize capture button and image view
         captureBtn = findViewById(R.id.capture_image);
         imgView = findViewById(R.id.image_view);
+        test = findViewById(R.id.test);
 
         // capture button click
         captureBtn.setOnClickListener(new View.OnClickListener() {
@@ -95,6 +98,8 @@ public class InfoActivity extends AppCompatActivity {
         if (resultCode == RESULT_OK) {
             //set the image captured to our ImageView
             imgView.setImageURI(image_uri);
+            test.setText(image_uri.toString());
+
         }
     }
 }
