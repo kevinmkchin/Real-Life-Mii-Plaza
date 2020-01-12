@@ -1,4 +1,4 @@
-package com.example.rl_mii_plaza.Face;
+/*package com.example.rl_mii_plaza.Face;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -91,3 +91,6 @@ public class FaceList {
         return null;
     }
 }
+
+
+ */

@@ -4,94 +4,62 @@ import com.example.rl_mii_plaza.ConfidenceResponse;
 import com.google.gson.Gson;
 import com.microsoft.projectoxford.face.contract.Face;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
+import java.io.IOException;
 
-import java.net.URI;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class FaceRecognition {
 
     public Face detectFaceId(String url) {
         Gson gson = new Gson();
-        String requestBody = "{\n" +
-                "\"url\": \"" + url + "\"\n" +
-                "}";
-        HttpClient httpclient = HttpClients.createDefault();
+        OkHttpClient okHttpClient = new OkHttpClient();
+        String requestBodyString = "{\"url\": \"" + url + "\"}";
+        RequestBody requestBody = RequestBody.create(null, requestBodyString.getBytes());
+        Request request = new Request.Builder().url("https://ubcfaceverification.cognitiveservices.azure.com/face/v1.0/detect?returnFaceId=true&returnFaceLandmarks=false&recognitionModel=recognition_01&returnRecognitionModel=false&detectionModel=detection_01").
+                addHeader("Content-Type", "application/json").addHeader("Ocp-Apim-Subscription-Key", "b24b58920c8e4703932909246540d0b3")
+                .post(requestBody).build();
 
         try {
-            URIBuilder builder = new URIBuilder("https://ubcfaceverification.cognitiveservices.azure.com/face/v1.0/detect");
-
-            builder.setParameter("returnFaceId", "true");
-            builder.setParameter("returnFaceLandmarks", "true");
-            builder.setParameter("recognitionModel", "recognition_02");
-            builder.setParameter("returnRecognitionModel", "false");
-            builder.setParameter("detectionModel", "detection_02");
-
-            URI uri = builder.build();
-            HttpPost request = new HttpPost(uri);
-            request.setHeader("Content-Type", "application/json");
-            request.setHeader("Ocp-Apim-Subscription-Key", "b24b58920c8e4703932909246540d0b3");
+            Response response = okHttpClient.newCall(request).execute();
+            String stringResponse = response.body().string();
 
 
-            // Request body
-            StringEntity reqEntity = new StringEntity(requestBody);
-            request.setEntity(reqEntity);
+            String goodJson = stringResponse.substring(1, stringResponse.length() - 1);
 
-            HttpResponse response = httpclient.execute(request);
-            HttpEntity entity = response.getEntity();
+            Face face = gson.fromJson(goodJson, Face.class);
+            return face;
 
-            if (entity != null) {
-
-                String string = EntityUtils.toString(entity);
-                String subString = string.substring(1, string.length() - 1);
-
-                return gson.fromJson(subString, Face.class);
-            }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
+            // Do something with the response.
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return null;
-
     }
 
     public boolean checkIfFaceMatch(Face face1, Face face2) {
-        HttpClient httpclient = HttpClients.createDefault();
+        Gson gson = new Gson();
+        OkHttpClient okHttpClient = new OkHttpClient();
+        String face1ID = face1.faceId.toString();
+        String face2ID = face2.faceId.toString();
+        String requestBodyString = "{\"faceId1\": \"" + face1ID + "\"," +
+                "\"faceId2\": \"" + face2ID + "\"}";
+        RequestBody requestBody = RequestBody.create(null, requestBodyString.getBytes());
+        Request request = new Request.Builder().url("https://ubcfaceverification.cognitiveservices.azure.com/face/v1.0/verify").
+                addHeader("Content-Type", "application/json").addHeader("Ocp-Apim-Subscription-Key", "b24b58920c8e4703932909246540d0b3")
+                .post(requestBody).build();
 
         try {
-            URIBuilder builder = new URIBuilder("https://ubcfaceverification.cognitiveservices.azure.com/face/v1.0/verify");
+            Response response = okHttpClient.newCall(request).execute();
+            String stringResponse = response.body().string();
+            ConfidenceResponse confidenceResponse = gson.fromJson(stringResponse, ConfidenceResponse.class);
+            return confidenceResponse.getIsIdentical();
 
-
-            URI uri = builder.build();
-            HttpPost request = new HttpPost(uri);
-            request.setHeader("Content-Type", "application/json");
-            request.setHeader("Ocp-Apim-Subscription-Key", "b24b58920c8e4703932909246540d0b3");
-            String face1ID = face1.faceId.toString();
-            String face2ID = face2.faceId.toString();
-
-
-            // Request body
-            StringEntity reqEntity = new StringEntity("{\"faceId1\": \"" + face1ID + "\"," +
-                    "\"faceId2\": \"" + face2ID + "\"}");
-            request.setEntity(reqEntity);
-
-            HttpResponse response = httpclient.execute(request);
-            HttpEntity entity = response.getEntity();
-
-            if (entity != null) {
-                Gson gson = new Gson();
-                String string = EntityUtils.toString(entity);
-                ConfidenceResponse confidenceResponse = gson.fromJson(string, ConfidenceResponse.class);
-                System.out.println(confidenceResponse.getConfidence());
-                return confidenceResponse.getIsIdentical();
-            }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
+            // Do something with the response.
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return false;
     }
