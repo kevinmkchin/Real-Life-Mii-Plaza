@@ -21,11 +21,13 @@ import android.widget.Toast;
 
 import com.example.rl_mii_plaza.R;
 import com.example.rl_mii_plaza.systems.CameraPreview;
+import com.example.rl_mii_plaza.systems.FaceRecognition;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.microsoft.projectoxford.face.contract.Face;
 
 import java.io.ByteArrayOutputStream;
 
@@ -35,6 +37,8 @@ public class Realtime extends AppCompatActivity {
     private CameraPreview mCameraPreview;
     private StorageReference mStorageRef;
     Uri imageURI;
+
+    private String faceUrl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,7 +96,7 @@ public class Realtime extends AppCompatActivity {
     }
 
     private void fileUploader() {
-        StorageReference ref = mStorageRef.child(System.currentTimeMillis() + "." + getExtension(imageURI));
+        final StorageReference ref = mStorageRef.child(System.currentTimeMillis() + "." + getExtension(imageURI));
 
         ref.putFile(imageURI)
                 .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -100,7 +104,13 @@ public class Realtime extends AppCompatActivity {
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                         // Get a URL to the uploaded content
                         // Uri downloadUrl = taskSnapshot.getDownloadUrl();
-                        Toast.makeText(Realtime.this, "Image uploaded successfully", Toast.LENGTH_LONG).show();
+                        //Toast.makeText(InfoActivity.this, "Image uploaded successfully", Toast.LENGTH_LONG).show();
+                        ref.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                faceUrl = uri.toString();
+                            }
+                        });
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -130,7 +140,13 @@ public class Realtime extends AppCompatActivity {
 
             imageURI = getImageUri(getApplicationContext(), bitmap);
             fileUploader();
-            mCamera.startPreview();
+
+            Face newFace = new FaceRecognition().detectFaceId(faceUrl);
+            if(new FaceRecognition().checkIfFaceMatch(newFace, newFace)){
+
+
+                mCamera.startPreview();
+            }
 
         }
 
