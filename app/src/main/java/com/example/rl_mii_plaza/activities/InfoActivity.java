@@ -1,9 +1,5 @@
 package com.example.rl_mii_plaza.activities;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.Manifest;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -13,7 +9,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.view.GestureDetector;
+import android.util.Log;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.Button;
@@ -22,16 +18,29 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.rl_mii_plaza.R;
-import com.google.android.gms.auth.api.signin.internal.Storage;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.behavior.SwipeDismissBehavior;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
-import org.json.JSONObject;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class InfoActivity extends AppCompatActivity {
 
@@ -44,17 +53,23 @@ public class InfoActivity extends AppCompatActivity {
     EditText name, hobbies, food, pronouns, school, linkedin;
 
     String fireURL = "";
+    List<String> documentIds;
+    List<Map<String, String>> fireMaps = new ArrayList<>();
 
     Uri image_uri;
 
     private StorageReference mStorageRef;
+    private FirebaseFirestore firestore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        FirebaseApp.initializeApp(this);
         setContentView(R.layout.activity_info);
 
         mStorageRef = FirebaseStorage.getInstance().getReference("Images");
+//        FirebaseApp.initializeApp(this);
+        firestore = FirebaseFirestore.getInstance(); //returns objects of firestore
 
         // initialize capture button and image view
         captureBtn = findViewById(R.id.capture_image);
@@ -112,21 +127,74 @@ public class InfoActivity extends AppCompatActivity {
         if (nameContent.equals("")) {
             Toast.makeText(InfoActivity.this, "Please fill out the name field", Toast.LENGTH_LONG).show();
         } else {
-            JSONObject temp = new JSONObject();
+            Map<String, String> person = new HashMap<>();
             try {
-                temp.put("url", fireURL);
-                temp.put("name", nameContent);
-                temp.put("hobbies", hobbiesContent);
-                temp.put("food", foodContent);
-                temp.put("pronouns", pronounsContent);
-                temp.put("school", schoolContent);
-                temp.put("linkedin", linkContent);
-                test.setText(temp.toString());
+                person.put("url", fireURL);
+                person.put("name", nameContent);
+                person.put("hobbies", hobbiesContent);
+                person.put("food", foodContent);
+                person.put("pronouns", pronounsContent);
+                person.put("school", schoolContent);
+                person.put("linkedin", linkContent);
+                firestore.collection("users").document(System.currentTimeMillis() + "")
+                        .set(person).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Toast.makeText(InfoActivity.this, "Uploaded JSONArray", Toast.LENGTH_LONG).show();
+                        firestore.collection("users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    List<String> list = new ArrayList();
+                                    for (QueryDocumentSnapshot document : task.getResult()) {
+                                        list.add(document.getId());
+                                    }
+                                    Log.d("tag", list.toString());
+                                    documentIds = list;
+                                    getDocumentData();
+                                } else {
+                                    Log.d("tag", "error getting documents", task.getException());
+                                }
+                            }
+                        });
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(InfoActivity.this, "Did not uploaded JSONArray", Toast.LENGTH_LONG).show();
+                    }
+                });
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
 
+    }
+
+    private void getDocumentData() {
+        CollectionReference collection = firestore.collection("users");
+        for (int i = 0; i < documentIds.size(); i++) {
+            collection.document(documentIds.get(i)).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists()) {
+                            fireMaps.add((Map) document.getData());
+                            Log.d("tag", "DocumentSnapshot data: " + document.getData());
+                        } else {
+                            Log.d("tag", "No such document");
+                        }
+                    } else {
+                        Log.d("tag", "get failed with ", task.getException());
+                    }
+                }
+            });
+        }
+    }
+
+    public List<Map<String, String>> getFireMaps() {
+        return fireMaps;
     }
 
     private String getExtension(Uri uri) {
@@ -152,6 +220,7 @@ public class InfoActivity extends AppCompatActivity {
                                 fireURL = uri.toString();
                                 collectEditTextContent();
                                 //test.setText(fireURL);
+
                             }
                         });
                     }
@@ -160,7 +229,7 @@ public class InfoActivity extends AppCompatActivity {
                     @Override
                     public void onFailure(@NonNull Exception exception) {
                         // Handle unsuccessful uploads
-                        // ...
+                        Toast.makeText(InfoActivity.this, "Error with FireBase Storage", Toast.LENGTH_LONG).show();
                     }
                 });
     }
