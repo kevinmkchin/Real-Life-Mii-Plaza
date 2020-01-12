@@ -17,6 +17,7 @@ import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -43,7 +44,8 @@ public class Realtime extends AppCompatActivity {
     private Camera mCamera;
     private CameraPreview mCameraPreview;
     private StorageReference mStorageRef;
-    Uri imageURI;
+    private boolean faceFound = false;
+    private Uri imageURI;
 
     private String faceUrl = null;
 
@@ -61,7 +63,7 @@ public class Realtime extends AppCompatActivity {
 //                        mCamera.startPreview();
 //                        Log.d("myTag", "it works");
 //                    }
-
+                    faceFound = false;
 
                     FirebaseFirestore firestore = FirebaseFirestore.getInstance();
                     firestore.collection("users")
@@ -70,29 +72,33 @@ public class Realtime extends AppCompatActivity {
                                 @Override
                                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                     if (task.isSuccessful()) {
-                                        for (final QueryDocumentSnapshot document : task.getResult()) {
-                                            Thread t = new Thread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    Face dbFace = recognizer.detectFaceId((String) document.get("url"));
-                                                    if (dbFace != null) {
-                                                        if (recognizer.checkIfFaceMatch(newFace, dbFace)) {
-                                                            runOnUiThread(new Runnable() {
-                                                                @Override
-                                                                public void run() {
-                                                                    displayName((String) document.get("name"));
-                                                                    displayHobbies((String) document.get("hobbies"));
-                                                                    displayPronouns((String) document.get("pronouns"));
-                                                                    displaySchool((String) document.get("school"));
-                                                                }
-                                                            });
+                                        synchronized (this) {
+                                            for (final QueryDocumentSnapshot document : task.getResult()) {
+                                                Thread t = new Thread(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        Face dbFace = recognizer.detectFaceId((String) document.get("url"));
+                                                        if (dbFace != null) {
+                                                            if (recognizer.checkIfFaceMatch(newFace, dbFace)) {
+                                                                faceFound = true;
+                                                                runOnUiThread(new Runnable() {
+                                                                    @Override
+                                                                    public void run() {
+                                                                        displayName((String) document.get("name"));
+                                                                        displayHobbies((String) document.get("hobbies"));
+                                                                        displayPronouns((String) document.get("pronouns"));
+                                                                        displaySchool((String) document.get("school"));
+                                                                    }
+                                                                });
+                                                            }
                                                         }
                                                     }
-                                                }
-                                            });
-                                            t.start();
-                                            Log.d("BRUH", document.getId() + " => " + document.getData());
+                                                });
+                                                t.start();
+                                                Log.d("BRUH", document.getId() + " => " + document.getData());
+                                            }
                                         }
+
                                     } else {
                                         Log.d("BRUH", "Error getting documents: ", task.getException());
                                     }
@@ -103,7 +109,23 @@ public class Realtime extends AppCompatActivity {
 
                 } else {
                     mCamera.startPreview();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(Realtime.this, "No Face Detected", Toast.LENGTH_SHORT).show();
+                        }
+                    });
                     Log.d("myTag", "no face in picture");
+                }
+            }
+            synchronized (this) {
+                if (!faceFound) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(Realtime.this, "No Face Matched in DB", Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 }
             }
             return null;
@@ -134,10 +156,10 @@ public class Realtime extends AppCompatActivity {
             }
         });
 
-        displayName("Chris Fung");
-        displayHobbies("Memes");
-        displaySchool("UBC");
-        displayPronouns("She/Her");
+        displayName("");
+        displayHobbies("");
+        displaySchool("");
+        displayPronouns("");
 
     }
 

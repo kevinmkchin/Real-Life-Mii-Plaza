@@ -20,7 +20,7 @@ public class FaceRecognition {
         OkHttpClient okHttpClient = new OkHttpClient();
         String requestBodyString = "{\"url\": \"" + url + "\"}";
         RequestBody requestBody = RequestBody.create(null, requestBodyString.getBytes());
-        Request request = new Request.Builder().url("https://ubcfaceverification.cognitiveservices.azure.com/face/v1.0/detect?returnFaceId=true&returnFaceLandmarks=false&recognitionModel=recognition_01&returnRecognitionModel=false&detectionModel=detection_01").
+        Request request = new Request.Builder().url("https://ubcfaceverification.cognitiveservices.azure.com/face/v1.0/detect?returnFaceId=true&returnFaceLandmarks=false&recognitionModel=recognition_02&returnRecognitionModel=false&detectionModel=detection_02").
                 addHeader("Content-Type", "application/json").addHeader("Ocp-Apim-Subscription-Key", "b24b58920c8e4703932909246540d0b3")
                 .post(requestBody).build();
 
@@ -28,12 +28,12 @@ public class FaceRecognition {
             Response response = okHttpClient.newCall(request).execute();
             String stringResponse = response.body().string();
 
-
-            String goodJson = stringResponse.substring(1, stringResponse.length() - 1);
-
-            Face face = gson.fromJson(goodJson, Face.class);
-            return face;
-
+            Face[] faces = gson.fromJson(stringResponse, Face[].class);
+            if (faces.length > 0) {
+                return faces[0];
+            } else {
+                return null;
+            }
             // Do something with the response.
         } catch (IOException e) {
             e.printStackTrace();
