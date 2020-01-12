@@ -16,8 +16,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 
-import androidx.appcompat.app.AppCompatActivity;
-
+import com.google.gson.Gson;
 import com.microsoft.projectoxford.face.FaceServiceClient;
 import com.microsoft.projectoxford.face.FaceServiceRestClient;
 import com.microsoft.projectoxford.face.contract.Face;
@@ -37,6 +36,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -196,7 +197,48 @@ public class MainActivity extends AppCompatActivity {
         return bitmap;
     }
 
-    private boolean faceRecognition(String url1, String url2) {
+
+    public void detectFaceId(String url) {
+        Gson gson = new Gson();
+
+        HttpClient httpclient = HttpClients.createDefault();
+
+        try {
+            URIBuilder builder = new URIBuilder("https://ubcfaceverification.cognitiveservices.azure.com/face/v1.0/detect");
+
+            builder.setParameter("returnFaceId", "true");
+            builder.setParameter("returnFaceLandmarks", "false");
+            builder.setParameter("recognitionModel", "recognition_01");
+            builder.setParameter("returnRecognitionModel", "false");
+            builder.setParameter("detectionModel", "detection_01");
+
+            URI uri = builder.build();
+            HttpPost request = new HttpPost(uri);
+            request.setHeader("Content-Type", "application/json");
+            request.setHeader("Ocp-Apim-Subscription-Key", "b24b58920c8e4703932909246540d0b3");
+
+
+            // Request body
+            StringEntity reqEntity = new StringEntity("{\"url\": \"https://i.imgur.com/TXlcJC3.png\"}");
+            request.setEntity(reqEntity);
+
+            HttpResponse response = httpclient.execute(request);
+            HttpEntity entity = response.getEntity();
+
+            if (entity != null) {
+                /*
+                String string = EntityUtils.toString(entity);
+                FaceResponse faceResponse = gson.fromJson(string, FaceResponse.class);
+                return faceResponse;
+
+                 */
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private boolean faceRecognition(String faceID1, String faceID2) {
         HttpClient httpclient = HttpClients.createDefault();
 
         try {
