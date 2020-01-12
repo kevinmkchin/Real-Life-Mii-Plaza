@@ -1,7 +1,9 @@
 package com.example.rl_mii_plaza.activities;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -11,11 +13,18 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import com.example.rl_mii_plaza.R;
 import com.example.rl_mii_plaza.systems.CameraPreview;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 
@@ -23,6 +32,8 @@ public class Realtime extends AppCompatActivity {
 
     private Camera mCamera;
     private CameraPreview mCameraPreview;
+    private StorageReference mStorageRef;
+    Uri imageURI;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +43,7 @@ public class Realtime extends AppCompatActivity {
         mCameraPreview = new CameraPreview(this, mCamera);
         FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
         preview.addView(mCameraPreview);
+        mStorageRef = FirebaseStorage.getInstance().getReference("Images");
 
         Button captureButton = (Button) findViewById(R.id.button_capture);
         captureButton.setOnClickListener(new View.OnClickListener() {
@@ -44,6 +56,35 @@ public class Realtime extends AppCompatActivity {
         });
 
 
+    }
+
+    private String getExtension(Uri uri) {
+        ContentResolver cr = getContentResolver();
+        MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
+        return mimeTypeMap.getExtensionFromMimeType(cr.getType(uri));
+    }
+
+
+
+    private void fileUploader() {
+        StorageReference ref = mStorageRef.child(System.currentTimeMillis() + "." + getExtension(imageURI));
+
+        ref.putFile(imageURI)
+                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        // Get a URL to the uploaded content
+                        // Uri downloadUrl = taskSnapshot.getDownloadUrl();
+                        Toast.makeText(Realtime.this, "Image uploaded successfully", Toast.LENGTH_LONG).show();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        // Handle unsuccessful uploads
+                        // ...
+                    }
+                });
     }
 
     /**
@@ -68,8 +109,8 @@ public class Realtime extends AppCompatActivity {
 
             Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
 
-            Uri nigga = getImageUri(getApplicationContext(), bitmap);
-
+            imageURI = getImageUri(getApplicationContext(), bitmap);
+            fileUploader();
             mCamera.startPreview();
 
         }
