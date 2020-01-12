@@ -41,9 +41,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
-    private final String apiEndpoint = "https://westcentralus.api.cognitive.microsoft.com/face/v1.0";
+    private final String apiEndpoint = "https://ubcfaceverification.cognitiveservices.azure.com//face/v1.0";
     // Add your Face subscription key to your environment variables.
-    private static final String subscriptionKey = "007d7d59118c46598573544e80c7898f";
+    private static final String subscriptionKey = "b9214e847b6e41688c3b48e04f220c98";
 
     private final FaceServiceClient faceServiceClient =
             new FaceServiceRestClient(apiEndpoint, subscriptionKey);
@@ -198,7 +198,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void detectFaceId(String url) {
+    public Face detectFaceId(String url) {
         Gson gson = new Gson();
 
         HttpClient httpclient = HttpClients.createDefault();
@@ -207,7 +207,7 @@ public class MainActivity extends AppCompatActivity {
             URIBuilder builder = new URIBuilder("https://ubcfaceverification.cognitiveservices.azure.com/face/v1.0/detect");
 
             builder.setParameter("returnFaceId", "true");
-            builder.setParameter("returnFaceLandmarks", "false");
+            builder.setParameter("returnFaceLandmarks", "true");
             builder.setParameter("recognitionModel", "recognition_01");
             builder.setParameter("returnRecognitionModel", "false");
             builder.setParameter("detectionModel", "detection_01");
@@ -219,57 +219,58 @@ public class MainActivity extends AppCompatActivity {
 
 
             // Request body
-            StringEntity reqEntity = new StringEntity("{\"url\": \"https://i.imgur.com/TXlcJC3.png\"}");
+            StringEntity reqEntity = new StringEntity("{\"url\": \"url\"}");
             request.setEntity(reqEntity);
 
             HttpResponse response = httpclient.execute(request);
             HttpEntity entity = response.getEntity();
 
             if (entity != null) {
-                /*
-                String string = EntityUtils.toString(entity);
-                FaceResponse faceResponse = gson.fromJson(string, FaceResponse.class);
-                return faceResponse;
 
-                 */
+                String string = EntityUtils.toString(entity);
+                String subString = string.substring(1, string.length() - 1);
+
+                return gson.fromJson(subString, Face.class);
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
+        return null;
+
     }
 
-    private boolean faceRecognition(String faceID1, String faceID2) {
+    public boolean checkIfFaceMath(Face face1, Face face2) {
         HttpClient httpclient = HttpClients.createDefault();
 
         try {
-            URIBuilder builder = new URIBuilder("https://westus.api.cognitive.microsoft.com/face/v1.0/detect");
+            URIBuilder builder = new URIBuilder("https://ubcfaceverification.cognitiveservices.azure.com/face/v1.0/verify");
 
-            builder.setParameter("returnFaceId", "true");
-            builder.setParameter("returnFaceLandmarks", "false");
-            builder.setParameter("returnFaceAttributes", "{string}");
-            builder.setParameter("recognitionModel", "recognition_01");
-            builder.setParameter("returnRecognitionModel", "false");
-            builder.setParameter("detectionModel", "detection_01");
 
             URI uri = builder.build();
             HttpPost request = new HttpPost(uri);
             request.setHeader("Content-Type", "application/json");
-            request.setHeader("Ocp-Apim-Subscription-Key", subscriptionKey);
+            request.setHeader("Ocp-Apim-Subscription-Key", "b24b58920c8e4703932909246540d0b3");
+            String face1ID = face1.faceId.toString();
+            String face2ID = face2.faceId.toString();
+
 
             // Request body
-            StringEntity reqEntity = new StringEntity("{body}");
+            StringEntity reqEntity = new StringEntity("{\"faceId1\": \"" + face1ID + "\"," +
+                    "\"faceId2\": \"" + face2ID + "\"}");
             request.setEntity(reqEntity);
 
             HttpResponse response = httpclient.execute(request);
             HttpEntity entity = response.getEntity();
 
             if (entity != null) {
-                System.out.println(EntityUtils.toString(entity));
+                Gson gson = new Gson();
+                String string = EntityUtils.toString(entity);
+                ConfidenceResponse confidenceResponse = gson.fromJson(string, ConfidenceResponse.class);
+                return confidenceResponse.getIsIdentical();
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
-
         return false;
     }
 }
