@@ -16,6 +16,7 @@ import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.rl_mii_plaza.R;
@@ -41,11 +42,11 @@ public class Realtime extends AppCompatActivity {
         setContentView(R.layout.activity_realtime);
         mCamera = getCameraInstance();
         mCameraPreview = new CameraPreview(this, mCamera);
-        FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
+        FrameLayout preview = findViewById(R.id.camera_preview);
         preview.addView(mCameraPreview);
         mStorageRef = FirebaseStorage.getInstance().getReference("Images");
 
-        Button captureButton = (Button) findViewById(R.id.button_capture);
+        Button captureButton = findViewById(R.id.button_capture);
         captureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -55,16 +56,40 @@ public class Realtime extends AppCompatActivity {
             }
         });
 
+        displayName("Chris Fung");
+        displayHobbies("Memes");
+        displaySchool("UBC");
+        displayPronouns("She/Her");
+
 
     }
+
+    public void displayName(String name){
+        TextView text = findViewById(R.id.name_text);
+        text.setText(name);
+    }
+
+    public void displayHobbies(String hobbies){
+        TextView text = findViewById(R.id.hobby_text);
+        text.setText(hobbies);
+    }
+
+    public void displayPronouns(String pronouns){
+        TextView text = findViewById(R.id.pronoun_text);
+        text.setText(pronouns);
+    }
+
+    public void displaySchool(String school){
+        TextView text = findViewById(R.id.school_text);
+        text.setText(school);
+    }
+
 
     private String getExtension(Uri uri) {
         ContentResolver cr = getContentResolver();
         MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
         return mimeTypeMap.getExtensionFromMimeType(cr.getType(uri));
     }
-
-
 
     private void fileUploader() {
         StorageReference ref = mStorageRef.child(System.currentTimeMillis() + "." + getExtension(imageURI));
@@ -87,12 +112,6 @@ public class Realtime extends AppCompatActivity {
                 });
     }
 
-    /**
-     * Helper method to access the camera returns null if it cannot get the
-     * camera or does not exist
-     *
-     * @return
-     */
     private Camera getCameraInstance() {
         Camera camera = null;
         try {
