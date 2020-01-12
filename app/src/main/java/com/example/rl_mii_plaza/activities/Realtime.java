@@ -6,17 +6,16 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.hardware.Camera;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.rl_mii_plaza.Face.FaceRecognition;
 import com.example.rl_mii_plaza.R;
@@ -26,9 +25,11 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.microsoft.projectoxford.face.contract.Face;
 
 import java.io.ByteArrayOutputStream;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 public class Realtime extends AppCompatActivity {
 
@@ -37,7 +38,25 @@ public class Realtime extends AppCompatActivity {
     private StorageReference mStorageRef;
     Uri imageURI;
 
-    private String faceUrl;
+    private String faceUrl = null;
+
+    private class MyTask extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+            Log.d("BRUH", faceUrl);
+            if (faceUrl != null) {
+                FaceRecognition recognizer = new FaceRecognition();
+                //Face newFace = ;
+                if (recognizer.checkIfFaceMatch(recognizer.detectFaceId(faceUrl), recognizer.detectFaceId(faceUrl))) {
+                    mCamera.startPreview();
+                    Log.d("myTag", "it works");
+                }
+            }
+            return null;
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,12 +68,15 @@ public class Realtime extends AppCompatActivity {
         preview.addView(mCameraPreview);
         mStorageRef = FirebaseStorage.getInstance().getReference("Images");
 
+        mCamera.startPreview();
+
         Button captureButton = findViewById(R.id.button_capture);
         captureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 mCamera.takePicture(null, null, mPicture);
+
 
             }
         });
@@ -63,7 +85,6 @@ public class Realtime extends AppCompatActivity {
         displayHobbies("Memes");
         displaySchool("UBC");
         displayPronouns("She/Her");
-
 
     }
 
@@ -108,6 +129,8 @@ public class Realtime extends AppCompatActivity {
                             @Override
                             public void onSuccess(Uri uri) {
                                 faceUrl = uri.toString();
+
+                                new MyTask().execute();
                             }
                         });
                     }
@@ -139,13 +162,6 @@ public class Realtime extends AppCompatActivity {
 
             imageURI = getImageUri(getApplicationContext(), bitmap);
             fileUploader();
-
-            Face newFace = new FaceRecognition().detectFaceId(faceUrl);
-            if(new FaceRecognition().checkIfFaceMatch(newFace, newFace)){
-
-
-                mCamera.startPreview();
-            }
 
         }
 
