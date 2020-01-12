@@ -41,9 +41,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
-    private final String apiEndpoint = "https://westcentralus.api.cognitive.microsoft.com/face/v1.0";
+    private final String apiEndpoint = "https://ubcfaceverification.cognitiveservices.azure.com//face/v1.0";
     // Add your Face subscription key to your environment variables.
-    private static final String subscriptionKey = "007d7d59118c46598573544e80c7898f";
+    private static final String subscriptionKey = "b9214e847b6e41688c3b48e04f220c98";
 
     private final FaceServiceClient faceServiceClient =
             new FaceServiceRestClient(apiEndpoint, subscriptionKey);
@@ -197,80 +197,5 @@ public class MainActivity extends AppCompatActivity {
         return bitmap;
     }
 
-
-    public void detectFaceId(String url) {
-        Gson gson = new Gson();
-
-        HttpClient httpclient = HttpClients.createDefault();
-
-        try {
-            URIBuilder builder = new URIBuilder("https://ubcfaceverification.cognitiveservices.azure.com/face/v1.0/detect");
-
-            builder.setParameter("returnFaceId", "true");
-            builder.setParameter("returnFaceLandmarks", "false");
-            builder.setParameter("recognitionModel", "recognition_01");
-            builder.setParameter("returnRecognitionModel", "false");
-            builder.setParameter("detectionModel", "detection_01");
-
-            URI uri = builder.build();
-            HttpPost request = new HttpPost(uri);
-            request.setHeader("Content-Type", "application/json");
-            request.setHeader("Ocp-Apim-Subscription-Key", "b24b58920c8e4703932909246540d0b3");
-
-
-            // Request body
-            StringEntity reqEntity = new StringEntity("{\"url\": \"https://i.imgur.com/TXlcJC3.png\"}");
-            request.setEntity(reqEntity);
-
-            HttpResponse response = httpclient.execute(request);
-            HttpEntity entity = response.getEntity();
-
-            if (entity != null) {
-                /*
-                String string = EntityUtils.toString(entity);
-                FaceResponse faceResponse = gson.fromJson(string, FaceResponse.class);
-                return faceResponse;
-
-                 */
-            }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
-    private boolean faceRecognition(String faceID1, String faceID2) {
-        HttpClient httpclient = HttpClients.createDefault();
-
-        try {
-            URIBuilder builder = new URIBuilder("https://westus.api.cognitive.microsoft.com/face/v1.0/detect");
-
-            builder.setParameter("returnFaceId", "true");
-            builder.setParameter("returnFaceLandmarks", "false");
-            builder.setParameter("returnFaceAttributes", "{string}");
-            builder.setParameter("recognitionModel", "recognition_01");
-            builder.setParameter("returnRecognitionModel", "false");
-            builder.setParameter("detectionModel", "detection_01");
-
-            URI uri = builder.build();
-            HttpPost request = new HttpPost(uri);
-            request.setHeader("Content-Type", "application/json");
-            request.setHeader("Ocp-Apim-Subscription-Key", subscriptionKey);
-
-            // Request body
-            StringEntity reqEntity = new StringEntity("{body}");
-            request.setEntity(reqEntity);
-
-            HttpResponse response = httpclient.execute(request);
-            HttpEntity entity = response.getEntity();
-
-            if (entity != null) {
-                System.out.println(EntityUtils.toString(entity));
-            }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-
-        return false;
-    }
 }
 
