@@ -25,6 +25,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.microsoft.projectoxford.face.contract.Face;
 
 import java.io.ByteArrayOutputStream;
 
@@ -48,10 +49,16 @@ public class Realtime extends AppCompatActivity {
             Log.d("BRUH", faceUrl);
             if (faceUrl != null) {
                 FaceRecognition recognizer = new FaceRecognition();
-                //Face newFace = ;
-                if (recognizer.checkIfFaceMatch(recognizer.detectFaceId(faceUrl), recognizer.detectFaceId(faceUrl))) {
+                Face newFace = recognizer.detectFaceId(faceUrl);
+                if (newFace != null) {
+//                    if (recognizer.checkIfFaceMatch(newFace, newFace)) {
+//                        mCamera.startPreview();
+//                        Log.d("myTag", "it works");
+//                    }
+                    
+                } else {
                     mCamera.startPreview();
-                    Log.d("myTag", "it works");
+                    Log.d("myTag", "no face in picture");
                 }
             }
             return null;
