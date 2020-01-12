@@ -62,7 +62,8 @@
                     android:autofillHints="no"
                     android:ems="10"
                     android:inputType="textAutoCorrect"
-                    android:textSize="12sp"/>
+                    android:textSize="12sp"
+                    android:textColor="#ffffff" />
             </LinearLayout>
 
             <LinearLayout
@@ -83,7 +84,8 @@
                     android:autofillHints="no"
                     android:ems="10"
                     android:inputType="textAutoCorrect"
-                    android:textSize="12sp"/>
+                    android:textSize="12sp"
+                    android:textColor="#ffffff" />
             </LinearLayout>
 
             <LinearLayout
@@ -104,7 +106,8 @@
                     android:autofillHints="no"
                     android:ems="10"
                     android:inputType="textAutoCorrect"
-                    android:textSize="12sp"/>
+                    android:textSize="12sp"
+                    android:textColor="#ffffff" />
             </LinearLayout>
 
 
@@ -126,7 +129,8 @@
                     android:autofillHints="no"
                     android:ems="10"
                     android:inputType="textAutoCorrect"
-                    android:textSize="12sp"/>
+                    android:textSize="12sp"
+                    android:textColor="#ffffff" />
             </LinearLayout>
 
             <LinearLayout
@@ -147,7 +151,8 @@
                     android:autofillHints="no"
                     android:ems="10"
                     android:inputType="textAutoCorrect"
-                    android:textSize="12sp"/>
+                    android:textSize="12sp"
+                    android:textColor="#ffffff" />
             </LinearLayout>
 
             <LinearLayout
@@ -168,7 +173,8 @@
                     android:autofillHints="no"
                     android:ems="10"
                     android:inputType="textAutoCorrect"
-                    android:textSize="12sp"/>
+                    android:textSize="12sp"
+                    android:textColor="#ffffff" />
             </LinearLayout>
 
             <LinearLayout
