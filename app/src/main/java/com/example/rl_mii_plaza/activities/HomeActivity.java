@@ -38,10 +38,10 @@ public class HomeActivity extends AppCompatActivity {
             case MotionEvent.ACTION_UP:
                 x2 = touchEvent.getX();
                 y2 = touchEvent.getY();
-                if ((x2 - x1) > 100) {
+                if ((x2 - x1) > 150) {
                     Intent i = new Intent(HomeActivity.this, InfoActivity.class);
                     startActivity(i);
-                } else if ((x1 - x2) > 100) {
+                } else if ((x1 - x2) > 150) {
                     Intent i = new Intent(HomeActivity.this, Realtime.class);
                     startActivity(i);
                 }

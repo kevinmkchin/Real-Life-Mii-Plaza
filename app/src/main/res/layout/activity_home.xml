@@ -6,16 +6,36 @@
     tools:context=".activities.HomeActivity"
     android:background="@drawable/gradient_list"
     android:id="@+id/layout"
-    android:orientation="vertical">
+    android:orientation="horizontal">
 
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_marginTop="400dp"
+        android:layout_weight="1"
+        android:text="&lt;"
+        android:textSize="36sp"
+        android:gravity="right" />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
         android:layout_marginTop="200dp"
         android:fontFamily="@font/montserrat"
         android:gravity="center_horizontal"
         android:text="AIR PLAZA"
         android:textColor="#ffffff"
+        android:textSize="36sp"
+        android:layout_weight="5" />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:gravity="left"
+        android:layout_marginTop="400dp"
+        android:layout_weight="1"
+        android:text="&gt;"
         android:textSize="36sp" />
+
 
 </LinearLayout>

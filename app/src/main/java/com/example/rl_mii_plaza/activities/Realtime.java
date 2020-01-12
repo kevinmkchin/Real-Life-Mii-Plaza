@@ -355,7 +355,7 @@ public class Realtime extends AppCompatActivity {
             case MotionEvent.ACTION_UP:
                 x2 = touchEvent.getX();
                 y2 = touchEvent.getY();
-                if ((x2 - x1) > 100) {
+                if ((x2 - x1) > 150) {
                     Intent i = new Intent(Realtime.this, HomeActivity.class);
                     startActivity(i);
                 }
