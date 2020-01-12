@@ -5,6 +5,7 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.AnimationDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -15,6 +16,7 @@ import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -44,10 +46,14 @@ import java.util.Map;
 
 public class InfoActivity extends AppCompatActivity {
 
+    float x1, x2, y1, y2;
+
+    LinearLayout linearLayout;
+
     private static final int PERMISSION_CODE = 1000;
     private static final int IMAGE_CAPTURE_CODE = 1001;
-    Button captureBtn;
-    Button uploadBtn;
+    Button captureBtn, uploadBtn, returnBtn;
+
     ImageView imgView;
     TextView test;
     EditText name, hobbies, food, pronouns, school, linkedin;
@@ -67,13 +73,20 @@ public class InfoActivity extends AppCompatActivity {
         FirebaseApp.initializeApp(this);
         setContentView(R.layout.activity_info);
 
+        linearLayout = findViewById(R.id.infoLayout);
+        AnimationDrawable animationDrawable = (AnimationDrawable) linearLayout.getBackground();
+        animationDrawable.setEnterFadeDuration(2000);
+        animationDrawable.setExitFadeDuration(2000);
+        animationDrawable.start();
+
+
         mStorageRef = FirebaseStorage.getInstance().getReference("Images");
-//        FirebaseApp.initializeApp(this);
         firestore = FirebaseFirestore.getInstance(); //returns objects of firestore
 
         // initialize capture button and image view
         captureBtn = findViewById(R.id.capture_image);
         uploadBtn = findViewById(R.id.upload);
+        returnBtn = findViewById(R.id.returnHome);
         imgView = findViewById(R.id.image_view);
         test = findViewById(R.id.test);
         initializeEditTexts();
@@ -98,6 +111,14 @@ public class InfoActivity extends AppCompatActivity {
             }
         });
 
+        returnBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(InfoActivity.this, HomeActivity.class);
+                startActivity(intent);
+            }
+        });
+
         uploadBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -105,6 +126,7 @@ public class InfoActivity extends AppCompatActivity {
             }
         });
     }
+
 
     private void initializeEditTexts() {
         name = findViewById(R.id.name);

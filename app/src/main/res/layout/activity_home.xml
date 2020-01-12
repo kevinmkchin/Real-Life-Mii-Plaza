@@ -4,13 +4,18 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".activities.HomeActivity"
+    android:background="@drawable/gradient_list"
+    android:id="@+id/layout"
     android:orientation="vertical">
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="20dp"
-        android:text="Name Plaza"
-        android:gravity="center_horizontal" />
+        android:layout_marginTop="200dp"
+        android:fontFamily="@font/montserrat"
+        android:gravity="center_horizontal"
+        android:text="AIR PLAZA"
+        android:textColor="#ffffff"
+        android:textSize="36sp" />
 
 </LinearLayout>
