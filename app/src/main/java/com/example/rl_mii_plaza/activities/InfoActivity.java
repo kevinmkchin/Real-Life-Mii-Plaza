@@ -13,9 +13,11 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.view.GestureDetector;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,10 +26,13 @@ import com.example.rl_mii_plaza.R;
 import com.google.android.gms.auth.api.signin.internal.Storage;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.behavior.SwipeDismissBehavior;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-//push
+
+import org.json.JSONObject;
+
 public class InfoActivity extends AppCompatActivity {
 
     private static final int PERMISSION_CODE = 1000;
@@ -36,6 +41,9 @@ public class InfoActivity extends AppCompatActivity {
     Button uploadBtn;
     ImageView imgView;
     TextView test;
+    EditText name, hobbies, food, pronouns, school, linkedin;
+
+    String fireURL = "";
 
     Uri image_uri;
 
@@ -53,6 +61,7 @@ public class InfoActivity extends AppCompatActivity {
         uploadBtn = findViewById(R.id.upload);
         imgView = findViewById(R.id.image_view);
         test = findViewById(R.id.test);
+        intializeEditTexts();
 
         // capture button click
         captureBtn.setOnClickListener(new View.OnClickListener() {
@@ -68,7 +77,7 @@ public class InfoActivity extends AppCompatActivity {
                         openCamera();
                     }
                 } else {
-                    //system os <marshmallow
+                    //system os < marshmallow
                     openCamera();
                 }
             }
@@ -77,9 +86,47 @@ public class InfoActivity extends AppCompatActivity {
         uploadBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 fileUploader();
             }
         });
+    }
+
+    private void intializeEditTexts() {
+        name = findViewById(R.id.name);
+        hobbies = findViewById(R.id.hobbies);
+        food = findViewById(R.id.food);
+        pronouns = findViewById(R.id.pronouns);
+        school = findViewById(R.id.school);
+        linkedin = findViewById(R.id.linkedin);
+    }
+
+    private void collectEditTextContent() {
+        String nameContent = name.getText().toString();
+        String hobbiesContent = hobbies.getText().toString();
+        String foodContent = food.getText().toString();
+        String pronounsContent = pronouns.getText().toString();
+        String schoolContent = school.getText().toString();
+        String linkContent = linkedin.getText().toString();
+
+        if (nameContent.equals("")) {
+            Toast.makeText(InfoActivity.this, "Please fill out the name field", Toast.LENGTH_LONG).show();
+        } else {
+            JSONObject temp = new JSONObject();
+            try {
+                temp.put("url", fireURL);
+                temp.put("name", nameContent);
+                temp.put("hobbies", hobbiesContent);
+                temp.put("food", foodContent);
+                temp.put("pronouns", pronounsContent);
+                temp.put("school", schoolContent);
+                temp.put("linkedin", linkContent);
+                test.setText(temp.toString());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 
     private String getExtension(Uri uri) {
@@ -101,7 +148,10 @@ public class InfoActivity extends AppCompatActivity {
                         ref.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                             @Override
                             public void onSuccess(Uri uri) {
-                                test.setText(uri.toString());
+                                //test.setText(uri.toString());
+                                fireURL = uri.toString();
+                                collectEditTextContent();
+                                //test.setText(fireURL);
                             }
                         });
                     }
