@@ -12,15 +12,17 @@
         android:id="@+id/camera_preview"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_weight="1" >
+        android:layout_weight="1">
 
         <Button
             android:id="@+id/button_capture"
-            android:layout_width="100dp"
-            android:layout_height="80dp"
+            android:layout_width="190dp"
+            android:layout_height="50dp"
             android:layout_gravity="center_horizontal"
-            android:layout_marginVertical="500dp"
-            android:text="SEARCH" />
+            android:layout_marginVertical="600dp"
+            android:fontFamily="@font/montserrat"
+            android:text="SEARCH"
+            android:textSize="18sp" />
 
 
     </FrameLayout>
@@ -30,34 +32,59 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="name"
-        android:textSize="50sp" />
+        android:layout_marginTop="360dp"
+        android:layout_marginLeft="20dp"
+        android:text="Name: "
+        android:textSize="20sp" />
 
     <TextView
         android:id="@+id/hobby_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="50dp"
-        android:text="hobby"
-        android:textSize="50sp" />
+        android:layout_marginTop="400dp"
+        android:layout_marginLeft="20dp"
+        android:text="Hobby: "
+        android:textSize="20sp" />
 
     <TextView
         android:id="@+id/pronoun_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="100dp"
-        android:text="pronoun"
-        android:textSize="50sp" />
+        android:layout_marginTop="440dp"
+        android:layout_marginLeft="20dp"
+        android:text="Pronoun: "
+        android:textSize="20dp" />
 
     <TextView
         android:id="@+id/school_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="150dp"
-        android:text="school"
-        android:textSize="50sp" />
+        android:layout_marginTop="480dp"
+        android:layout_marginLeft="20dp"
+        android:text="School: "
+        android:textSize="20sp" />
+
+    <TextView
+        android:id="@+id/food_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="520dp"
+        android:layout_marginLeft="20dp"
+        android:text="Food: "
+        android:textSize="20sp" />
+
+    <TextView
+        android:id="@+id/linkedin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="560dp"
+        android:layout_marginLeft="20dp"
+        android:text="LinkedIn: "
+        android:textSize="20sp" />
 
 </RelativeLayout>

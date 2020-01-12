@@ -88,6 +88,8 @@ public class Realtime extends AppCompatActivity {
                                                                         displayHobbies((String) document.get("hobbies"));
                                                                         displayPronouns((String) document.get("pronouns"));
                                                                         displaySchool((String) document.get("school"));
+                                                                        displayFood ((String) document.get("food"));
+                                                                        displayLinkedin ((String) document.get("linkedin")); // might not be camelCase
                                                                     }
                                                                 });
                                                             }
@@ -158,8 +160,11 @@ public class Realtime extends AppCompatActivity {
 
         displayName("");
         displayHobbies("");
+        displayFood("");
         displaySchool("");
         displayPronouns("");
+        displayLinkedin("");
+
 
     }
 
@@ -176,6 +181,16 @@ public class Realtime extends AppCompatActivity {
     public void displayPronouns(String pronouns) {
         TextView text = findViewById(R.id.pronoun_text);
         text.setText(pronouns);
+    }
+
+    public void displayFood(String name) {
+        TextView text = findViewById(R.id.food_text);
+        text.setText(name);
+    }
+
+    public void displayLinkedin(String name) {
+        TextView text = findViewById(R.id.linkedin);
+        text.setText(name);
     }
 
     public void displaySchool(String school) {
