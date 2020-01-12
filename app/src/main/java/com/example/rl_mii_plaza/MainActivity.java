@@ -34,10 +34,6 @@ public class MainActivity extends AppCompatActivity {
     // Add your Face subscription key to your environment variables.
     private static final String subscriptionKey = "007d7d59118c46598573544e80c7898f";
 
-    private static final String imageWithFaces = "{\"url\":\"https://upload.wikimedia.org/wikipedia/commons/c/c3/RH_Louise_Lillian_Gish.jpg\"}";
-    private static final String faceAttributes =
-            "age,gender,headPose,smile,facialHair,glasses,emotion,hair,makeup,occlusion,accessories,blur,exposure,noise";
-
     private final FaceServiceClient faceServiceClient =
             new FaceServiceRestClient(apiEndpoint, subscriptionKey);
 
