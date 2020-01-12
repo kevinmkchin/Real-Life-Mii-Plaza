@@ -1,8 +1,5 @@
 package com.example.rl_mii_plaza.activities;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.ContentResolver;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -17,11 +14,13 @@ import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.rl_mii_plaza.Face.FaceRecognition;
 import com.example.rl_mii_plaza.R;
 import com.example.rl_mii_plaza.systems.CameraPreview;
-import com.example.rl_mii_plaza.systems.FaceRecognition;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;

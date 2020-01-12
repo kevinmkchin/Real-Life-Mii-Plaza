@@ -1,4 +1,4 @@
-package com.example.rl_mii_plaza.systems;
+package com.example.rl_mii_plaza.Face;
 
 import com.example.rl_mii_plaza.ConfidenceResponse;
 import com.google.gson.Gson;
@@ -19,7 +19,9 @@ public class FaceRecognition {
 
     public Face detectFaceId(String url) {
         Gson gson = new Gson();
-
+        String requestBody = "{\n" +
+                "\"url\": \"" + url + "\"\n" +
+                "}";
         HttpClient httpclient = HttpClients.createDefault();
 
         try {
@@ -27,9 +29,9 @@ public class FaceRecognition {
 
             builder.setParameter("returnFaceId", "true");
             builder.setParameter("returnFaceLandmarks", "true");
-            builder.setParameter("recognitionModel", "recognition_01");
+            builder.setParameter("recognitionModel", "recognition_02");
             builder.setParameter("returnRecognitionModel", "false");
-            builder.setParameter("detectionModel", "detection_01");
+            builder.setParameter("detectionModel", "detection_02");
 
             URI uri = builder.build();
             HttpPost request = new HttpPost(uri);
@@ -38,7 +40,7 @@ public class FaceRecognition {
 
 
             // Request body
-            StringEntity reqEntity = new StringEntity("{\"url\": \"url\"}");
+            StringEntity reqEntity = new StringEntity(requestBody);
             request.setEntity(reqEntity);
 
             HttpResponse response = httpclient.execute(request);
@@ -85,6 +87,7 @@ public class FaceRecognition {
                 Gson gson = new Gson();
                 String string = EntityUtils.toString(entity);
                 ConfidenceResponse confidenceResponse = gson.fromJson(string, ConfidenceResponse.class);
+                System.out.println(confidenceResponse.getConfidence());
                 return confidenceResponse.getIsIdentical();
             }
         } catch (Exception e) {
@@ -92,6 +95,4 @@ public class FaceRecognition {
         }
         return false;
     }
-
-
 }
