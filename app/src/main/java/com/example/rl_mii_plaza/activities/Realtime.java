@@ -40,6 +40,8 @@ import com.google.firebase.storage.UploadTask;
 import com.microsoft.projectoxford.face.contract.Face;
 
 import java.io.ByteArrayOutputStream;
+import java.lang.reflect.Array;
+import java.util.Random;
 
 public class Realtime extends AppCompatActivity {
 
@@ -50,6 +52,7 @@ public class Realtime extends AppCompatActivity {
     private StorageReference mStorageRef;
     private boolean faceFound = false;
     private Uri imageURI;
+    private int[] emojiArray;
 
     private String faceUrl = null;
 
@@ -148,6 +151,8 @@ public class Realtime extends AppCompatActivity {
         preview.addView(mCameraPreview);
         mStorageRef = FirebaseStorage.getInstance().getReference("Images");
 
+        setupEmoji();
+
 
         mCamera.startPreview();
 
@@ -172,34 +177,96 @@ public class Realtime extends AppCompatActivity {
 
     }
 
+    public void setupEmoji(){
+        emojiArray = new int[15];
+
+        emojiArray[0] = 0x1F618;
+        emojiArray[1] = 0x1F601;
+        emojiArray[2] = 0x1F602;
+        emojiArray[3] = 0x1F603;
+        emojiArray[4] = 0x1F604;
+        emojiArray[5] = 0x1F605;
+        emojiArray[6] = 0x1F606;
+        emojiArray[7] = 0x1F60D;
+        emojiArray[8] = 0x1F60A;
+        emojiArray[9] = 0x1F623;
+
+        emojiArray[10] = 0x1F624;
+
+        emojiArray[11] = 0x1F525;
+
+        emojiArray[12] = 0x1F619;
+        emojiArray[13] = 0x1F608;
+        emojiArray[14] = 0x1F60E;
+
+        // emojiArray[11] = 0x2728; // Sparkles
+    }
+
+
+    public String getEmojiByUnicode(int unicode){
+        return new String(Character.toChars(unicode));
+    }
+
     public void displayName(String name) {
         TextView text = findViewById(R.id.name_text);
-        text.setText(name);
+        if (!name.equals("")) {
+            int r = new Random().nextInt(16);
+            int emoji = emojiArray[r];
+            text.setText(getEmojiByUnicode(emoji) + " " +name);
+        } else {
+            text.setText("");
+        }
     }
 
     public void displayHobbies(String hobbies) {
         TextView text = findViewById(R.id.hobby_text);
-        text.setText(hobbies);
+        if(!hobbies.equals("")){
+            text.setText(getEmojiByUnicode(0x26BD) + " " + hobbies);
+        }else{
+            text.setText("");
+        }
     }
 
     public void displayPronouns(String pronouns) {
         TextView text = findViewById(R.id.pronoun_text);
-        text.setText(pronouns);
+        if(!pronouns.equals("")) {
+            text.setText(pronouns);
+            if (pronouns.contains("him") || pronouns.contains("he")) {
+                text.setText(getEmojiByUnicode(0x1F466) + " " + pronouns);
+            } else if (pronouns.contains("her") || pronouns.contains("she")) {
+                text.setText(getEmojiByUnicode(0x1F469) + " " + pronouns);
+            }
+        }else{
+            text.setText("");
+        }
     }
 
     public void displayFood(String name) {
         TextView text = findViewById(R.id.food_text);
-        text.setText(name);
+        if(!name.equals("")){
+            text.setText(getEmojiByUnicode(0x1F374) + " " + name);
+        }else{
+            text.setText("");
+        }
     }
 
     public void displayLinkedin(String name) {
         TextView text = findViewById(R.id.linkedin);
-        text.setText(name);
+        if(!name.equals("")){
+            text.setText(getEmojiByUnicode(0x1F4BC) + " " + name);
+        }else{
+            text.setText("");
+        }
+
     }
 
     public void displaySchool(String school) {
         TextView text = findViewById(R.id.school_text);
-        text.setText(school);
+        if(!school.equals("")){
+            text.setText(getEmojiByUnicode(0x1F3EB) + " " + school);
+        }else{
+            text.setText("");
+        }
     }
 
 
