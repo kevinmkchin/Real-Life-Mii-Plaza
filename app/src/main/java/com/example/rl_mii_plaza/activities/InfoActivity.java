@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -13,29 +14,45 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.rl_mii_plaza.R;
+import com.google.android.gms.auth.api.signin.internal.Storage;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 public class InfoActivity extends AppCompatActivity {
 
     private static final int PERMISSION_CODE = 1000;
     private static final int IMAGE_CAPTURE_CODE = 1001;
     Button captureBtn;
+    Button uploadBtn;
     ImageView imgView;
+    TextView test;
 
     Uri image_uri;
+
+    private StorageReference mStorageRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_info);
 
+        mStorageRef = FirebaseStorage.getInstance().getReference("Images");
+
         // initialize capture button and image view
         captureBtn = findViewById(R.id.capture_image);
+        uploadBtn = findViewById(R.id.upload);
         imgView = findViewById(R.id.image_view);
+        test = findViewById(R.id.test);
 
         // capture button click
         captureBtn.setOnClickListener(new View.OnClickListener() {
@@ -56,6 +73,40 @@ public class InfoActivity extends AppCompatActivity {
                 }
             }
         });
+
+        uploadBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fileUploader();
+            }
+        });
+    }
+
+    private String getExtension(Uri uri) {
+        ContentResolver cr = getContentResolver();
+        MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
+        return mimeTypeMap.getExtensionFromMimeType(cr.getType(uri));
+    }
+
+    private void fileUploader() {
+        StorageReference ref = mStorageRef.child(System.currentTimeMillis() + "." + getExtension(image_uri));
+
+        ref.putFile(image_uri)
+                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        // Get a URL to the uploaded content
+                        // Uri downloadUrl = taskSnapshot.getDownloadUrl();
+                        Toast.makeText(InfoActivity.this, "Image uploaded successfully", Toast.LENGTH_LONG).show();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        // Handle unsuccessful uploads
+                        // ...
+                    }
+                });
     }
 
     private void openCamera() {
@@ -95,6 +146,8 @@ public class InfoActivity extends AppCompatActivity {
         if (resultCode == RESULT_OK) {
             //set the image captured to our ImageView
             imgView.setImageURI(image_uri);
+            test.setText(image_uri.toString());
+
         }
     }
 }
