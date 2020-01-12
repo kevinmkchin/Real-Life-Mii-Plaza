@@ -265,6 +265,8 @@ public class Realtime extends AppCompatActivity {
                 text.setText(getEmojiByUnicode(0x1F466) + " " + pronouns);
             } else if (pronouns.contains("her") || pronouns.contains("she")) {
                 text.setText(getEmojiByUnicode(0x1F469) + " " + pronouns);
+            } else {
+                text.setText(getEmojiByUnicode(0x1F600) + " " + pronouns);
             }
         } else {
             text.setText("");
