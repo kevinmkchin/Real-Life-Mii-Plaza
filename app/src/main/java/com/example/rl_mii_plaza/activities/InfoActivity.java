@@ -144,7 +144,7 @@ public class InfoActivity extends AppCompatActivity {
                     case MotionEvent.ACTION_UP:
                         x2 = event.getX();
                         y2 = event.getY();
-                        if ((x1 - x2) > 150) {
+                        if ((x1 - x2) > 200) {
                             Intent i = new Intent(InfoActivity.this, HomeActivity.class);
                             startActivity(i);
                         }
