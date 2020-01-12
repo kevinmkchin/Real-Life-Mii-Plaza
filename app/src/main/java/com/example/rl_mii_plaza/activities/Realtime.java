@@ -1,14 +1,17 @@
 package com.example.rl_mii_plaza.activities;
 
+import android.Manifest;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -22,6 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.rl_mii_plaza.Face.FaceRecognition;
@@ -40,13 +44,13 @@ import com.google.firebase.storage.UploadTask;
 import com.microsoft.projectoxford.face.contract.Face;
 
 import java.io.ByteArrayOutputStream;
-import java.lang.reflect.Array;
 import java.util.Random;
 
 public class Realtime extends AppCompatActivity {
 
     float x1, x2, y1, y2;
 
+    private static final int PERMISSION_CODE = 100;
     private Camera mCamera;
     private CameraPreview mCameraPreview;
     private StorageReference mStorageRef;
@@ -79,43 +83,59 @@ public class Realtime extends AppCompatActivity {
                                 @Override
                                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                     if (task.isSuccessful()) {
-                                        synchronized (this) {
-                                            for (final QueryDocumentSnapshot document : task.getResult()) {
-                                                Thread t = new Thread(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        Face dbFace = recognizer.detectFaceId((String) document.get("url"));
-                                                        if (dbFace != null) {
-                                                            if (recognizer.checkIfFaceMatch(newFace, dbFace)) {
-                                                                faceFound = true;
-                                                                runOnUiThread(new Runnable() {
-                                                                    @Override
-                                                                    public void run() {
-                                                                        displayName((String) document.get("name"));
-                                                                        displayHobbies((String) document.get("hobbies"));
-                                                                        displayPronouns((String) document.get("pronouns"));
-                                                                        displaySchool((String) document.get("school"));
-                                                                        displayFood ((String) document.get("food"));
-                                                                        displayLinkedin ((String) document.get("linkedin")); // might not be camelCase
-                                                                    }
-                                                                });
-                                                            }
+                                        for (final QueryDocumentSnapshot document : task.getResult()) {
+                                            Thread t = new Thread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    Face dbFace = recognizer.detectFaceId((String) document.get("url"));
+                                                    if (dbFace != null) {
+                                                        if (recognizer.checkIfFaceMatch(newFace, dbFace)) {
+                                                            faceFound = true;
+                                                            runOnUiThread(new Runnable() {
+                                                                @Override
+                                                                public void run() {
+                                                                    displayName((String) document.get("name"));
+                                                                    displayHobbies((String) document.get("hobbies"));
+                                                                    displayPronouns((String) document.get("pronouns"));
+                                                                    displaySchool((String) document.get("school"));
+                                                                    displayFood((String) document.get("food"));
+                                                                    displayLinkedin((String) document.get("linkedin")); // might not be camelCase
+                                                                }
+                                                            });
                                                         }
                                                     }
-                                                });
-                                                t.start();
-                                                Log.d("BRUH", document.getId() + " => " + document.getData());
+                                                }
+                                            });
+                                            t.start();
+
+                                            try {
+                                                t.join();
+                                            } catch (InterruptedException e) {
+                                                e.printStackTrace();
                                             }
+                                            Log.d("BRUH", document.getId() + " => " + document.getData());
                                         }
 
+                                        if (!faceFound) {
+                                            runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    Toast.makeText(Realtime.this, "No Face Matched in DB", Toast.LENGTH_SHORT).show();
+                                                    displayName("");
+                                                    displayHobbies("");
+                                                    displayPronouns("");
+                                                    displaySchool("");
+                                                    displayFood("");
+                                                    displayLinkedin("");
+                                                }
+                                            });
+                                        }
                                     } else {
                                         Log.d("BRUH", "Error getting documents: ", task.getException());
                                     }
                                 }
                             });
-
                     mCamera.startPreview();
-
                 } else {
                     mCamera.startPreview();
                     runOnUiThread(new Runnable() {
@@ -127,24 +147,20 @@ public class Realtime extends AppCompatActivity {
                     Log.d("myTag", "no face in picture");
                 }
             }
-            synchronized (this) {
-                if (!faceFound) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-//                            Toast.makeText(Realtime.this, "No Face Matched in DB", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
-            }
             return null;
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_realtime);
+
+        if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.CAMERA}, PERMISSION_CODE);
+        }
+
         mCamera = getCameraInstance();
         mCameraPreview = new CameraPreview(this, mCamera);
         FrameLayout preview = findViewById(R.id.camera_preview);
@@ -152,7 +168,6 @@ public class Realtime extends AppCompatActivity {
         mStorageRef = FirebaseStorage.getInstance().getReference("Images");
 
         setupEmoji();
-
 
         mCamera.startPreview();
 
@@ -162,8 +177,6 @@ public class Realtime extends AppCompatActivity {
             public void onClick(View v) {
 
                 mCamera.takePicture(null, null, mPicture);
-
-
             }
         });
 
@@ -173,11 +186,9 @@ public class Realtime extends AppCompatActivity {
         displaySchool("");
         displayPronouns("");
         displayLinkedin("");
-
-
     }
 
-    public void setupEmoji(){
+    public void setupEmoji() {
         emojiArray = new int[15];
 
         emojiArray[0] = 0x1F618;
@@ -203,7 +214,7 @@ public class Realtime extends AppCompatActivity {
     }
 
 
-    public String getEmojiByUnicode(int unicode){
+    public String getEmojiByUnicode(int unicode) {
         return new String(Character.toChars(unicode));
     }
 
@@ -212,7 +223,7 @@ public class Realtime extends AppCompatActivity {
         if (!name.equals("")) {
             int r = new Random().nextInt(16);
             int emoji = emojiArray[r];
-            text.setText(getEmojiByUnicode(emoji) + " " +name);
+            text.setText(getEmojiByUnicode(emoji) + " " + name);
         } else {
             text.setText("");
         }
@@ -220,41 +231,41 @@ public class Realtime extends AppCompatActivity {
 
     public void displayHobbies(String hobbies) {
         TextView text = findViewById(R.id.hobby_text);
-        if(!hobbies.equals("")){
+        if (!hobbies.equals("")) {
             text.setText(getEmojiByUnicode(0x26BD) + " " + hobbies);
-        }else{
+        } else {
             text.setText("");
         }
     }
 
     public void displayPronouns(String pronouns) {
         TextView text = findViewById(R.id.pronoun_text);
-        if(!pronouns.equals("")) {
+        if (!pronouns.equals("")) {
             text.setText(pronouns);
             if (pronouns.contains("him") || pronouns.contains("he")) {
                 text.setText(getEmojiByUnicode(0x1F466) + " " + pronouns);
             } else if (pronouns.contains("her") || pronouns.contains("she")) {
                 text.setText(getEmojiByUnicode(0x1F469) + " " + pronouns);
             }
-        }else{
+        } else {
             text.setText("");
         }
     }
 
     public void displayFood(String name) {
         TextView text = findViewById(R.id.food_text);
-        if(!name.equals("")){
+        if (!name.equals("")) {
             text.setText(getEmojiByUnicode(0x1F374) + " " + name);
-        }else{
+        } else {
             text.setText("");
         }
     }
 
     public void displayLinkedin(String name) {
         TextView text = findViewById(R.id.linkedin);
-        if(!name.equals("")){
+        if (!name.equals("")) {
             text.setText(getEmojiByUnicode(0x1F4BC) + " " + name);
-        }else{
+        } else {
             text.setText("");
         }
 
@@ -262,9 +273,9 @@ public class Realtime extends AppCompatActivity {
 
     public void displaySchool(String school) {
         TextView text = findViewById(R.id.school_text);
-        if(!school.equals("")){
+        if (!school.equals("")) {
             text.setText(getEmojiByUnicode(0x1F3EB) + " " + school);
-        }else{
+        } else {
             text.setText("");
         }
     }
@@ -362,5 +373,17 @@ public class Realtime extends AppCompatActivity {
                 break;
         }
         return false;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSION_CODE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "camera permission granted", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(this, "camera permission denied", Toast.LENGTH_LONG).show();
+            }
+        }
     }
 }
