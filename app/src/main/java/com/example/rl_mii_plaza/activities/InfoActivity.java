@@ -89,7 +89,7 @@ public class InfoActivity extends AppCompatActivity {
     }
 
     private void fileUploader() {
-        StorageReference ref = mStorageRef.child(System.currentTimeMillis() + "." + getExtension(image_uri));
+        final StorageReference ref = mStorageRef.child(System.currentTimeMillis() + "." + getExtension(image_uri));
 
         ref.putFile(image_uri)
                 .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -98,6 +98,12 @@ public class InfoActivity extends AppCompatActivity {
                         // Get a URL to the uploaded content
                         // Uri downloadUrl = taskSnapshot.getDownloadUrl();
                         Toast.makeText(InfoActivity.this, "Image uploaded successfully", Toast.LENGTH_LONG).show();
+                        ref.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                test.setText(uri.toString());
+                            }
+                        });
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
