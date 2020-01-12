@@ -29,7 +29,9 @@
             android:name="org.apache.http.legacy"
             android:required="false" />
 
-        <activity android:name=".activities.Realtime"></activity>
+        <activity android:name=".activities.Realtime">
+
+        </activity>
         <activity android:name=".MainActivity">
 
         </activity>
