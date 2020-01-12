@@ -2,6 +2,7 @@ package com.example.rl_mii_plaza.activities;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -12,6 +13,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.Button;
@@ -40,6 +42,8 @@ import com.microsoft.projectoxford.face.contract.Face;
 import java.io.ByteArrayOutputStream;
 
 public class Realtime extends AppCompatActivity {
+
+    float x1, x2, y1, y2;
 
     private Camera mCamera;
     private CameraPreview mCameraPreview;
@@ -123,7 +127,7 @@ public class Realtime extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(Realtime.this, "No Face Matched in DB", Toast.LENGTH_SHORT).show();
+//                            Toast.makeText(Realtime.this, "No Face Matched in DB", Toast.LENGTH_SHORT).show();
                         }
                     });
                 }
@@ -260,4 +264,21 @@ public class Realtime extends AppCompatActivity {
         return true;
     }
 
+    public boolean onTouchEvent(MotionEvent touchEvent) {
+        switch (touchEvent.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                x1 = touchEvent.getX();
+                y1 = touchEvent.getY();
+                break;
+            case MotionEvent.ACTION_UP:
+                x2 = touchEvent.getX();
+                y2 = touchEvent.getY();
+                if ((x2 - x1) > 100) {
+                    Intent i = new Intent(Realtime.this, HomeActivity.class);
+                    startActivity(i);
+                }
+                break;
+        }
+        return false;
+    }
 }

@@ -1,6 +1,7 @@
 package com.example.rl_mii_plaza.activities;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -11,12 +12,14 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -67,6 +70,7 @@ public class InfoActivity extends AppCompatActivity {
     private StorageReference mStorageRef;
     private FirebaseFirestore firestore;
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -125,6 +129,32 @@ public class InfoActivity extends AppCompatActivity {
                 fileUploader();
             }
         });
+
+
+        ScrollView scrollView = findViewById(R.id.peenis);
+        scrollView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        x1 = event.getX();
+                        y1 = event.getY();
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        x2 = event.getX();
+                        y2 = event.getY();
+                        if ((x1 - x2) > 100) {
+                            Intent i = new Intent(InfoActivity.this, HomeActivity.class);
+                            startActivity(i);
+                        }
+                        break;
+                }
+
+                return false;
+            }
+        });
+
     }
 
 
