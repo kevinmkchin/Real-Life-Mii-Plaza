@@ -76,7 +76,7 @@ public class InfoActivity extends AppCompatActivity {
         uploadBtn = findViewById(R.id.upload);
         imgView = findViewById(R.id.image_view);
         test = findViewById(R.id.test);
-        intializeEditTexts();
+        initializeEditTexts();
 
         // capture button click
         captureBtn.setOnClickListener(new View.OnClickListener() {
@@ -101,13 +101,12 @@ public class InfoActivity extends AppCompatActivity {
         uploadBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 fileUploader();
             }
         });
     }
 
-    private void intializeEditTexts() {
+    private void initializeEditTexts() {
         name = findViewById(R.id.name);
         hobbies = findViewById(R.id.hobbies);
         food = findViewById(R.id.food);
@@ -243,7 +242,6 @@ public class InfoActivity extends AppCompatActivity {
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, image_uri);
         startActivityForResult(cameraIntent, IMAGE_CAPTURE_CODE);
-
     }
 
     //handling permission result
@@ -267,12 +265,11 @@ public class InfoActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         //called when image was capture from camera
-
+        super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             //set the image captured to our ImageView
             imgView.setImageURI(image_uri);
             test.setText(image_uri.toString());
-
         }
     }
 }

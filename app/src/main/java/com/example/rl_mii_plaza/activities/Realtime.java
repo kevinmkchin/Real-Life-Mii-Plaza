@@ -4,6 +4,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -17,20 +18,25 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.rl_mii_plaza.Face.FaceRecognition;
 import com.example.rl_mii_plaza.R;
 import com.example.rl_mii_plaza.systems.CameraPreview;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.microsoft.projectoxford.face.contract.Face;
 
 import java.io.ByteArrayOutputStream;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 
 public class Realtime extends AppCompatActivity {
 
@@ -48,14 +54,53 @@ public class Realtime extends AppCompatActivity {
 
             Log.d("BRUH", faceUrl);
             if (faceUrl != null) {
-                FaceRecognition recognizer = new FaceRecognition();
-                Face newFace = recognizer.detectFaceId(faceUrl);
+                final FaceRecognition recognizer = new FaceRecognition();
+                final Face newFace = recognizer.detectFaceId(faceUrl);
                 if (newFace != null) {
 //                    if (recognizer.checkIfFaceMatch(newFace, newFace)) {
 //                        mCamera.startPreview();
 //                        Log.d("myTag", "it works");
 //                    }
-                    
+
+
+                    FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+                    firestore.collection("users")
+                            .get()
+                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        for (final QueryDocumentSnapshot document : task.getResult()) {
+                                            Thread t = new Thread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    Face dbFace = recognizer.detectFaceId((String) document.get("url"));
+                                                    if (dbFace != null) {
+                                                        if (recognizer.checkIfFaceMatch(newFace, dbFace)) {
+                                                            runOnUiThread(new Runnable() {
+                                                                @Override
+                                                                public void run() {
+                                                                    displayName((String) document.get("name"));
+                                                                    displayHobbies((String) document.get("hobbies"));
+                                                                    displayPronouns((String) document.get("pronouns"));
+                                                                    displaySchool((String) document.get("school"));
+                                                                }
+                                                            });
+                                                        }
+                                                    }
+                                                }
+                                            });
+                                            t.start();
+                                            Log.d("BRUH", document.getId() + " => " + document.getData());
+                                        }
+                                    } else {
+                                        Log.d("BRUH", "Error getting documents: ", task.getException());
+                                    }
+                                }
+                            });
+
+                    mCamera.startPreview();
+
                 } else {
                     mCamera.startPreview();
                     Log.d("myTag", "no face in picture");
@@ -74,6 +119,7 @@ public class Realtime extends AppCompatActivity {
         FrameLayout preview = findViewById(R.id.camera_preview);
         preview.addView(mCameraPreview);
         mStorageRef = FirebaseStorage.getInstance().getReference("Images");
+
 
         mCamera.startPreview();
 
@@ -95,22 +141,22 @@ public class Realtime extends AppCompatActivity {
 
     }
 
-    public void displayName(String name){
+    public void displayName(String name) {
         TextView text = findViewById(R.id.name_text);
         text.setText(name);
     }
 
-    public void displayHobbies(String hobbies){
+    public void displayHobbies(String hobbies) {
         TextView text = findViewById(R.id.hobby_text);
         text.setText(hobbies);
     }
 
-    public void displayPronouns(String pronouns){
+    public void displayPronouns(String pronouns) {
         TextView text = findViewById(R.id.pronoun_text);
         text.setText(pronouns);
     }
 
-    public void displaySchool(String school){
+    public void displaySchool(String school) {
         TextView text = findViewById(R.id.school_text);
         text.setText(school);
     }
@@ -166,12 +212,16 @@ public class Realtime extends AppCompatActivity {
         public void onPictureTaken(byte[] data, Camera camera) {
 
             Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+            Matrix matrix = new Matrix();
 
-            imageURI = getImageUri(getApplicationContext(), bitmap);
+            matrix.postRotate(90);
+
+            Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, bitmap.getWidth(), bitmap.getHeight(), true);
+
+            Bitmap rotatedBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
+            imageURI = getImageUri(getApplicationContext(), rotatedBitmap);
             fileUploader();
-
         }
-
     };
 
     public Uri getImageUri(Context inContext, Bitmap inImage) {
