@@ -5,6 +5,8 @@ import com.google.gson.Gson;
 import com.microsoft.projectoxford.face.contract.Face;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -55,6 +57,7 @@ public class FaceRecognition {
             Response response = okHttpClient.newCall(request).execute();
             String stringResponse = response.body().string();
             ConfidenceResponse confidenceResponse = gson.fromJson(stringResponse, ConfidenceResponse.class);
+            System.out.println(confidenceResponse.getConfidence());
             return confidenceResponse.getIsIdentical();
 
             // Do something with the response.
@@ -62,5 +65,23 @@ public class FaceRecognition {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public Map<String, String> searchDatabase(List<Map<String, String>> entries, String url) throws NoURLFoundException, NoUserFoundException {
+        Face face1 = detectFaceId(url);
+
+        for (Map<String, String> entry : entries) {
+            String urlToMatch = entry.get("url");
+            Face face2 = detectFaceId(urlToMatch);
+
+            if (urlToMatch == null || urlToMatch.isEmpty()) {
+                throw new NoURLFoundException();
+            }
+
+            if (checkIfFaceMatch(face1, face2)) {
+                return entry;
+            }
+        }
+        throw new NoUserFoundException();
     }
 }
