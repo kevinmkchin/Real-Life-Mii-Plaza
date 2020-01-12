@@ -232,7 +232,26 @@ public class Realtime extends AppCompatActivity {
     public void displayHobbies(String hobbies) {
         TextView text = findViewById(R.id.hobby_text);
         if (!hobbies.equals("")) {
-            text.setText(getEmojiByUnicode(0x26BD) + " " + hobbies);
+            if (hobbies.contains("soccer")) {
+                text.setText(getEmojiByUnicode(0x26BD) + " " + hobbies);
+            }else
+            if (hobbies.contains("basketball")) {
+                text.setText(getEmojiByUnicode(0x1F3C0) + " " + hobbies);
+            }else
+            if (hobbies.contains("shop")) {
+                text.setText(getEmojiByUnicode(0x1F6CD) + " " + hobbies);
+            }else
+            if (hobbies.contains("gam")) {
+                text.setText(getEmojiByUnicode(0x1F47E) + " " + hobbies);
+            }else
+            if (hobbies.contains("fencing")){
+                text.setText(getEmojiByUnicode(0x1F93A) + " " + hobbies);
+            }else
+            if (hobbies.contains("gym") || hobbies.contains("work")) {
+                text.setText(getEmojiByUnicode(0x1F3CB) + " " + hobbies);
+            } else {
+                text.setText(getEmojiByUnicode(0x2728) + " " + hobbies);
+            }
         } else {
             text.setText("");
         }
