@@ -340,6 +340,8 @@ public class Realtime extends AppCompatActivity {
             Bitmap rotatedBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
             imageURI = getImageUri(getApplicationContext(), rotatedBitmap);
             fileUploader();
+            ContentResolver contentResolver = getContentResolver();
+            contentResolver.delete(imageURI, null, null);
         }
     };
 
