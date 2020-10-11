@@ -1,5 +1,5 @@
 # Elevator pitch
-first hello is a social networking app which uses facial recognition instead of a username or handle. It helps users connect with new friends by giving them preliminary info before meeting new people!
+first hello is a social networking app which uses facial recognition instead of a username or handle. It helps users connect with new friends by giving them preliminary information (name, interests, pronouns, etc) before meeting new people!
 
 # Inspiration
 Imagine a social networking app that uses your face as your unique handle/identifier rather than an username or @.
